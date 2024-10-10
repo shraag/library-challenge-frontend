@@ -33,7 +33,7 @@ async function loginUser(username, password) {
   
   function logout() {
     document.cookie = 'access_token=; Max-Age=0; path=/;';
-    window.location.href = '/library-challenge-frontend//index.html';
+    window.location.href = '/library-challenge-frontend/index.html';
   }
   
   async function fetchBooks() {
