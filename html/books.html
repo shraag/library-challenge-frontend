@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Library Management</title>
+    <script>
+      fetch('./navbar.html')
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById('navbar-placeholder').innerHTML = data;
+        })
+        .catch((error) => console.error('Error loading navbar:', error));
+    </script>
+    <script src="../js/functions.js"></script>
+  </head>
+  <body>
+    <!-- Include the navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <div class="container mt-5">
+      <div id="book-list" class="list-group">
+        <!-- Books will be dynamically inserted here -->
+      </div>
+
+      <form id="add-book-form" class="mt-4">
+        <div class="form-group">
+          <label for="title">Title</label>
+          <input type="text" class="form-control" id="title" required />
+        </div>
+        <div class="form-group">
+          <label for="author">Author</label>
+          <input type="text" class="form-control" id="author" required />
+        </div>
+        <div class="form-group">
+          <label for="published_year">Published Year</label>
+          <input
+            type="number"
+            class="form-control"
+            id="published_year"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Add Book</button>
+      </form>
+
+      <form id="update-book-form" class="mt-4" style="display: none">
+        <input type="hidden" id="update-book-id" />
+        <div class="form-group">
+          <label for="update-title">Title</label>
+          <input type="text" class="form-control" id="update-title" required />
+        </div>
+        <div class="form-group">
+          <label for="update-author">Author</label>
+          <input type="text" class="form-control" id="update-author" required />
+        </div>
+        <div class="form-group">
+          <label for="update-published_year">Published Year</label>
+          <input
+            type="number"
+            class="form-control"
+            id="update-published_year"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Update Book</button>
+      </form>
+    </div>
+
+    <script>
+      const bookList = document.getElementById('book-list');
+      document.addEventListener('DOMContentLoaded', function () {
+        fetchBooks().then((data) => {
+          const books = data;
+          // const bookList = document.getElementById('book-list');
+
+          books.forEach((book) => {
+            const bookItem = document.createElement('div');
+            bookItem.className =
+              'list-group-item d-flex justify-content-between align-items-center';
+            bookItem.id = book.id;
+
+            bookItem.innerHTML = `
+              <div>
+                <p><strong>Author:</strong> <span class="book-author">${book.author}</span></p>
+                <p><strong>Title:</strong> <span class="book-title">${book.title}</span></p>
+                <p><strong>Published Year:</strong> <span class="book-published-year">${book.published_year}</span></p>
+                <p><strong>Status:</strong> <span class="book-status">${book.status}</span></p>
+              </div>
+              <div>
+                <button class="btn btn-warning btn-sm edit-btn">Edit</button>
+                <button class="btn btn-danger btn-sm delete-btn">Delete</button>
+              </div>
+            `;
+
+            bookItem
+              .querySelector('.delete-btn')
+              .addEventListener('click', async function () {
+                try {
+                  await deleteBook(book.id);
+                  bookList.removeChild(bookItem);
+                  console.log('Book deleted successfully');
+                } catch (error) {
+                  console.error('Failed to delete book:', error);
+                }
+              });
+
+            bookItem
+              .querySelector('.edit-btn')
+              .addEventListener('click', function () {
+                document.getElementById('update-book-id').value = book.id;
+                document.getElementById('update-title').value = book.title;
+                document.getElementById('update-author').value = book.author;
+                document.getElementById('update-published_year').value =
+                  book.published_year;
+                document.getElementById('update-book-form').style.display =
+                  'block';
+                document.getElementById('add-book-form').style.display = 'none';
+              });
+
+            bookList.appendChild(bookItem);
+          });
+        });
+
+        const addBookForm = document.getElementById('add-book-form');
+        addBookForm.addEventListener('submit', async function (event) {
+          event.preventDefault();
+
+          const title = document.getElementById('title').value;
+          const author = document.getElementById('author').value;
+          const published_year =
+            document.getElementById('published_year').value;
+
+          try {
+            const newBook = await addBook(title, author, published_year);
+
+            const newBookItem = document.createElement('div');
+            newBookItem.className =
+              'list-group-item d-flex justify-content-between align-items-center';
+
+            newBookItem.innerHTML = `
+              <div>
+                <p><strong>Author:</strong> <span class="book-author">${author}</span></p>
+                <p><strong>Title:</strong> <span class="book-title">${title}</span></p>
+                <p><strong>Published Year:</strong> <span class="book-published-year">${published_year}</span></p>
+                <p><strong>Status:</strong> <span class="book-status">AVAILABLE</span></p>
+              </div>
+              <div>
+                <button class="btn btn-warning btn-sm edit-btn">Edit</button>
+                <button class="btn btn-danger btn-sm delete-btn">Delete</button>
+              </div>
+            `;
+
+            newBookItem
+              .querySelector('.delete-btn')
+              .addEventListener('click', async function () {
+                try {
+                  await deleteBook(newBook.id);
+                  bookList.removeChild(bookItem);
+                  console.log('Book deleted successfully');
+                } catch (error) {
+                  console.error('Failed to delete book:', error);
+                }
+              });
+
+            newBookItem
+              .querySelector('.edit-btn')
+              .addEventListener('click', function () {
+                document.getElementById('update-book-id').value = newBook.id;
+                document.getElementById('update-title').value = newBook.title;
+                document.getElementById('update-author').value = newBook.author;
+                document.getElementById('update-published_year').value =
+                  newBook.published_year;
+                document.getElementById('update-book-form').style.display =
+                  'block';
+                document.getElementById('add-book-form').style.display = 'none';
+              });
+
+            bookList.appendChild(newBookItem);
+            addBookForm.reset();
+          } catch (error) {
+            console.error('Failed to add book:', error);
+          }
+        });
+
+        const updateBookForm = document.getElementById('update-book-form');
+        updateBookForm.addEventListener('submit', async function (event) {
+          event.preventDefault();
+
+          const bookId = document.getElementById('update-book-id').value;
+          const title = document.getElementById('update-title').value;
+          const author = document.getElementById('update-author').value;
+          const published_year = document.getElementById(
+            'update-published_year'
+          ).value;
+
+          try {
+            const updatedBook = await updateBook(
+              bookId,
+              title,
+              author,
+              published_year
+            );
+
+            const bookItems = document.querySelectorAll('.list-group-item');
+            const bookItem = document.getElementById(bookId);
+            bookItem.querySelector('span.book-author').innerText = `${author}`;
+            bookItem.querySelector('span.book-title').innerText = `${title}`;
+            bookItem.querySelector(
+              'span.book-published-year'
+            ).innerText = `${published_year}`;
+
+            updateBookForm.reset();
+            document.getElementById('update-book-form').style.display = 'none';
+            document.getElementById('add-book-form').style.display = 'block';
+          } catch (error) {
+            console.error('Failed to update book:', error);
+          }
+        });
+      });
+    </script>
+
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </body>
+</html>
