@@ -3,11 +3,21 @@
 This repository contains the frontend code for the Library Management System. The application allows users to sign up, log in, view available books, and manage their borrowed books. It also includes functionalities for librarians to manage books and view members.
 
 ## Project Structure
-html/ books.html member_available.html member_books.html member_navbar.html members.html navbar.html 
-index.html 
-signup.html
-js/ functions.js 
-README.md 
+```
+/ (root)
+├── html/
+│   ├── books.html
+│   ├── member_available.html
+│   ├── member_books.html
+│   ├── member_navbar.html
+│   ├── members.html
+│   └── navbar.html
+├── index.html
+├── signup.html
+├── js/
+│   └── functions.js
+└── README.md
+```
 
 ### HTML Files
 
