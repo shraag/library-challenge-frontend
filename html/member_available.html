@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Available Books</title>
+    <script src="../js/functions.js"></script>
+    <script>
+      fetch('./member_navbar.html')
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById('navbar-placeholder').innerHTML = data;
+        })
+        .catch((error) => console.error('Error loading navbar:', error));
+
+      document.addEventListener('DOMContentLoaded', function () {
+        fetchAvailableBooks().then((books) => {
+          const bookList = document.getElementById('book-list');
+          if (books.length === 0) {
+            const noBooksMessage = document.createElement('p');
+            noBooksMessage.className = 'text-muted';
+            noBooksMessage.innerText = 'No books available';
+            bookList.appendChild(noBooksMessage);
+          } else {
+            books.forEach((book) => {
+              const bookItem = document.createElement('div');
+              bookItem.className = 'list-group-item';
+              bookItem.innerHTML = `
+                <p><strong>Title:</strong> ${book.title}</p>
+                <p><strong>Author:</strong> ${book.author}</p>
+                <p><strong>Published Year:</strong> ${book.published_year}</p>
+                <button class="btn btn-primary btn-sm borrow-btn" data-id="${book.id}">Borrow Book</button>
+              `;
+              bookList.appendChild(bookItem);
+
+              bookItem.querySelector('.borrow-btn').addEventListener('click', async function () {
+                const bookId = this.getAttribute('data-id');
+                try {
+                  await borrowBook(bookId);
+                  bookItem.remove();
+                  if (bookList.children.length === 0) {
+                    const noBooksMessage = document.createElement('p');
+                    noBooksMessage.className = 'text-muted';
+                    noBooksMessage.innerText = 'No books available';
+                    bookList.appendChild(noBooksMessage);
+                  }
+                  console.log('Book borrowed successfully');
+                } catch (error) {
+                  console.error('Failed to borrow book:', error);
+                }
+              });
+            });
+          }
+        }).catch((error) => {
+          console.error('Failed to fetch available books:', error);
+        });
+      });
+    </script>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Include the navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <div class="container mt-5">
+      <h2>Books Available to Borrow</h2>
+      <div id="book-list" class="list-group">
+        <!-- Available books will be dynamically inserted here -->
+      </div>
+    </div>
+  </body>
+</html>
