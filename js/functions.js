@@ -33,7 +33,7 @@ async function loginUser(username, password) {
   
   function logout() {
     document.cookie = 'access_token=; Max-Age=0; path=/;';
-    window.location.href = '/index.html';
+    window.location.href = '/library-challenge-frontend//index.html';
   }
   
   async function fetchBooks() {
@@ -481,7 +481,7 @@ async function loginUser(username, password) {
   
       // Clear the access token cookie and redirect to the index page
       document.cookie = 'access_token=; Max-Age=0; path=/;';
-      window.location.href = '/index.html';
+      window.location.href = '/library-challenge-frontend/index.html';
     } catch (error) {
       console.error('Failed to delete account:', error);
       displayError('Failed to delete account: Please return all the books');
